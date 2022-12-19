@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "lint": "node --check src/index.mjs && node --check bin/env-var-contract-checker.mjs && node --check test/contract.test.mjs && node --check test/cli.test.mjs",
+    "lint": "node --check src/index.mjs && node --check bin/env-var-contract-checker.mjs && node --check test/contract.test.mjs && node --check test/cli.test.mjs && node --check test/secrets.test.mjs",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/**",
     "example": "node bin/env-var-contract-checker.mjs --contract examples/contract.json --env examples/production.env.json",

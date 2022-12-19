@@ -3,7 +3,7 @@
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { checkEnvironment, formatReport } from '../src/index.mjs'
+import { checkEnvironment, formatReport, parseFailureDetail } from '../src/index.mjs'
 
 const HELP = `env-var-contract-checker
 
@@ -20,7 +20,8 @@ Options:
   -h, --help          Show this help
 
 Secret values are never read or reported. A manifest that carries one is
-reported as a leak in the input, without echoing what leaked.
+reported as a leak in the input, without echoing what leaked -- including when
+the file does not parse, where only the failure's position is printed.
 
 Exit codes:
   0  the environment satisfied its contract
@@ -53,10 +54,20 @@ function parseArguments(argv) {
 }
 
 async function loadJson(path, label) {
+  let text
   try {
-    return JSON.parse(await readFile(resolve(path), 'utf8'))
+    text = await readFile(resolve(path), 'utf8')
   } catch (error) {
     throw new Error(`Could not read ${label}: ${error.message}`)
+  }
+  // The read failure above names the path, which the caller supplied. The parse
+  // failure below is different: V8 quotes the document back, so reporting it
+  // raw would print a manifest that is nothing but a credential in full. Only
+  // the position survives.
+  try {
+    return JSON.parse(text)
+  } catch (error) {
+    throw new Error(`Could not read ${label}: ${parseFailureDetail(error)}`)
   }
 }
 

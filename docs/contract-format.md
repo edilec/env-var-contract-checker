@@ -71,6 +71,14 @@ For a variable declared `secret`:
 The only facts recorded about a secret are whether it was present and whether it
 satisfied its declared shape.
 
+A file that does not parse at all takes a path where none of that applies, and
+that path used to reproduce the file. `JSON.parse` reports a failure either by
+position or by quoting the input back — `Unexpected token 'A',
+"AKIAIOSFODNN7EXAMPLE" is not valid JSON`, the whole document when the document
+is short and a ten-character prefix when it is not. The diagnostic for an
+unparseable contract or manifest now carries the failure's position, line and
+column and nothing else.
+
 ## Rules
 
 | Rule ID | Severity | Meaning |

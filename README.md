@@ -62,6 +62,13 @@ satisfied its declared shape. The test suite asserts this by scanning the whole
 serialized report — and every prefix of the secret — rather than trusting the
 formatter.
 
+That holds on the error path too, which is where it used to fail. `JSON.parse`
+reports a failure either by position or by quoting the input back — `Unexpected
+token 'A', "AKIAIOSFODNN7EXAMPLE" is not valid JSON`, which is the entire
+document when the document is short, and a manifest short enough to be only a
+credential is exactly that. The diagnostic for a file that does not parse is
+built from the failure's position, line and column alone.
+
 ## Values are strings
 
 Values are strings throughout, because that is what a process environment
