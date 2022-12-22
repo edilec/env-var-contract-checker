@@ -20,23 +20,55 @@ export const REDACTED = '[redacted]'
  *
  * V8 reports a parse failure two ways, and one of them quotes the input back:
  * `Unexpected token 'A', "AKIAIOSFODNN7EXAMPLE" is not valid JSON` -- the whole
- * document when the document is short, a ten-character prefix when it is not.
+ * document when the document is short, a ten-character window when it is not.
  * A manifest is exactly the kind of file that is short and nothing but a
  * credential, so interpolating that message would defeat the redaction this
  * tool exists for, on the one path -- a malformed file -- where nothing else
  * examines the content at all.
  *
+ * The quoting shape is recognised FIRST, and that ordering is load-bearing.
+ * Searching for the offset first finds `at position 1` INSIDE the quoted span
+ * whenever the manifest itself contains that text, and then slices the
+ * manifest straight back out: a manifest reading `at position 1` came back as
+ * `Unexpected token 'a', "at position 1`.
+ *
  * The position is the useful half and carries no content, so it is kept
- * whenever V8 offers one. The quoted half never leaves this function.
+ * whenever V8 offers one on its own. The quoted half never leaves this
+ * function. The closing guard is deliberate belt and braces: every parse
+ * message V8 emits without a quoted snippet spells JSON punctuation with
+ * apostrophes and carries no double quote at all, so a double quote surviving
+ * to the end means a snippet survived with it, whatever the branches above
+ * concluded, and the generic sentence is returned instead.
  */
 export function parseFailureDetail(error) {
-  const message = String(error?.message ?? 'could not be parsed')
-  const position = /at position \d+(?: \(line \d+ column \d+\))?/.exec(message)
-  if (position) return message.slice(0, position.index + position[0].length)
-  const token = /^Unexpected token (.+?), ".*?"(?:\.\.\.)? is not valid JSON$/s.exec(message)
-  if (token) return `unexpected token ${token[1]} at the start of the document`
-  if (/^Unexpected end of JSON input$/.test(message)) return message
-  return 'the document could not be parsed as JSON'
+  const message = String(error?.message ?? '')
+  const detail = describeParseFailure(message)
+  return detail.includes('"') ? UNPARSEABLE : detail
+}
+
+const UNPARSEABLE = 'the document could not be parsed as JSON'
+
+/** Where V8 puts the offending offset. Safe: an offset says nothing about content. */
+const POSITION = /at position \d+(?: \(line \d+ column \d+\))?/
+
+/**
+ * The shape that quotes the input. A leading `...` means the quoted run was
+ * taken from the middle of the document rather than its start, which is the
+ * only thing about the position this shape reveals. The `s` flag matters too:
+ * the quoted span can contain a newline.
+ */
+const QUOTES_THE_INPUT = /^Unexpected token (.+?), (\.\.\.)?".*"(?:\.\.\.)? is not valid JSON$/s
+
+function describeParseFailure(message) {
+  const quoting = QUOTES_THE_INPUT.exec(message)
+  if (quoting !== null) {
+    const where = quoting[2] === undefined ? 'at the start of the document' : 'inside the document'
+    return `unexpected token ${quoting[1]} ${where}`
+  }
+  const position = POSITION.exec(message)
+  if (position !== null) return message.slice(0, position.index + position[0].length)
+  if (message === 'Unexpected end of JSON input') return message
+  return UNPARSEABLE
 }
 
 function byCodeUnit(left, right) {
