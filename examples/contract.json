@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1",
+  "variables": {
+    "DATABASE_URL": {
+      "type": "url",
+      "required": true,
+      "secret": true,
+      "owner": "platform-team",
+      "allowedSchemes": ["postgres", "postgresql"],
+      "description": "Primary database connection string."
+    },
+    "API_BASE_URL": {
+      "type": "url",
+      "required": true,
+      "owner": "platform-team",
+      "description": "Base URL the service calls for its own API."
+    },
+    "LOG_LEVEL": {
+      "type": "enum",
+      "allowedValues": ["debug", "info", "warn", "error"],
+      "default": "info",
+      "required": true,
+      "owner": "platform-team"
+    },
+    "MAX_CONNECTIONS": {
+      "type": "integer",
+      "default": "25",
+      "owner": "platform-team"
+    },
+    "FEATURE_BETA_UI": {
+      "type": "boolean",
+      "default": "false",
+      "owner": "product-team"
+    },
+    "SESSION_SIGNING_KEY": {
+      "type": "string",
+      "required": true,
+      "secret": true,
+      "minLength": 32,
+      "owner": "security-team"
+    }
+  }
+}

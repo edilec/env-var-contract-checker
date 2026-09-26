@@ -1,0 +1,50 @@
+{
+  "name": "env-var-contract-checker",
+  "version": "0.1.0",
+  "description": "Validate required environment variables, defaults and secret boundaries.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "node --check src/index.mjs && node --check bin/env-var-contract-checker.mjs && node --check test/contract.test.mjs && node --check test/cli.test.mjs && node --check test/secrets.test.mjs",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/**",
+    "example": "node bin/env-var-contract-checker.mjs --contract examples/contract.json --env examples/production.env.json",
+    "pack:check": "npm pack --dry-run",
+    "check": "npm run lint && npm test && npm run example && npm run pack:check"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edilec/env-var-contract-checker.git"
+  },
+  "bin": {
+    "env-var-contract-checker": "./bin/env-var-contract-checker.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "environment",
+    "configuration",
+    "contract",
+    "validation",
+    "secrets",
+    "cli"
+  ],
+  "author": "Edilec Private Limited",
+  "bugs": {
+    "url": "https://github.com/edilec/env-var-contract-checker/issues"
+  },
+  "homepage": "https://github.com/edilec/env-var-contract-checker#readme"
+}
