@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## Unreleased
+## 0.1.0 — 2026-10-14
 
 ### Added
 
@@ -26,4 +26,4 @@ All notable changes to this project are documented in this file.
   that failed to read it, defeating the redaction this tool exists for. The
   diagnostic is built from the position, line and column alone now.
 
-No release has been published.
+GitHub source release v0.1.0 — 2026-10-14.
